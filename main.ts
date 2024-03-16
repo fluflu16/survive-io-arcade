@@ -1104,7 +1104,6 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     LEFT = false
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
-    let christmas_powerup: Sprite = null
     if (otherSprite == health_pack) {
         sprites.destroy(otherSprite, effects.halo, 1000)
         if (!(info.life() > max_life)) {
@@ -1182,6 +1181,7 @@ let waiting = 0
 let easter_powerup: Sprite = null
 let halloween_powerup: Sprite = null
 let summer_powerup: Sprite = null
+let christmas_powerup: Sprite = null
 let ammopack: Sprite = null
 let Armor_upgrade: Sprite = null
 let health_pack: Sprite = null
@@ -2410,7 +2410,26 @@ forever(function () {
         }
     }
     if (season == 4) {
-    	
+        christmas_powerup = sprites.create(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . 2 2 1 2 1 2 2 . . . . . . . 
+            . 1 1 2 1 2 1 2 1 . . . . . . . 
+            . 2 2 . . . . 1 2 . . . . . . . 
+            . 1 1 . . . . 2 2 . . . . . . . 
+            . . . . . . . 1 1 . . . . . . . 
+            . . . . . . . 2 2 . . . . . . . 
+            . . . . . . . 1 1 . . . . . . . 
+            . . . . . . . 2 2 . . . . . . . 
+            . . . . . . . 1 1 . . . . . . . 
+            . . . . . . . 2 2 . . . . . . . 
+            . . . . . . . 1 1 . . . . . . . 
+            . . . . . . . 2 2 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, SpriteKind.Food)
+        tiles.placeOnRandomTile(easter_powerup, sprites.dungeon.chestOpen)
+        foodies = 0
     }
 })
 forever(function () {

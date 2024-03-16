@@ -1104,25 +1104,28 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     LEFT = false
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    let christmas_powerup: Sprite = null
     if (otherSprite == health_pack) {
         sprites.destroy(otherSprite, effects.halo, 1000)
-        if (armor_status == 0) {
-            info.setLife(5)
-        }
-        if (armor_status == 1) {
-            info.setLife(8)
-        }
-        if (armor_status == 2) {
-            info.setLife(11)
-        }
-        if (armor_status == 3) {
-            info.setLife(14)
-        }
-        if (armor_status == 4) {
-            info.setLife(17)
-        }
-        if (armor_status == 4) {
-            info.setLife(20)
+        if (!(info.life() > max_life)) {
+            if (armor_status == 0) {
+                info.setLife(5)
+            }
+            if (armor_status == 1) {
+                info.setLife(8)
+            }
+            if (armor_status == 2) {
+                info.setLife(11)
+            }
+            if (armor_status == 3) {
+                info.setLife(14)
+            }
+            if (armor_status == 4) {
+                info.setLife(17)
+            }
+            if (armor_status == 4) {
+                info.setLife(20)
+            }
         }
     }
     if (otherSprite == Armor_upgrade) {
@@ -1130,6 +1133,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
         if (armor_status < 5) {
             info.changeLifeBy(3)
             armor_status += 1
+            max_life += 3
         } else {
             mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).sayText("armor level maxed out", 1000, false)
         }
@@ -1169,14 +1173,15 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, oth
     info.changeScoreBy(10)
 })
 sprites.onOverlap(SpriteKind.Projectile2, SpriteKind.Enemy, function (sprite, otherSprite) {
-    sprites.destroy(sprite, effects.ashes, 500)
+    if (gun_type == 1 || gun_type == 3) {
+        sprites.destroy(sprite, effects.ashes, 500)
+    }
 })
 let next_gun_spawn = 0
 let waiting = 0
 let easter_powerup: Sprite = null
 let halloween_powerup: Sprite = null
 let summer_powerup: Sprite = null
-let christmas_powerup: Sprite = null
 let ammopack: Sprite = null
 let Armor_upgrade: Sprite = null
 let health_pack: Sprite = null
@@ -1194,6 +1199,7 @@ let AMMO_BRRRRRRRR = 0
 let gun_type = 0
 let projectile: Sprite = null
 let loaded = 0
+let max_life = 0
 spriteutils.setLifeImage(img`
     2 . . . . . 2 
     . 2 . . . 2 . 
@@ -1204,8 +1210,9 @@ spriteutils.setLifeImage(img`
     2 . . . . . 2 
     . . . . . . . 
     `)
+max_life = 5
 info.setScore(0)
-let season = 1
+let season = 2
 loaded = 0
 tiles.setCurrentTilemap(tilemap`level4`)
 if (season == 0) {
@@ -2114,11 +2121,20 @@ scene.setBackgroundImage(img`
     6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
     6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
     `)
-if (season == 1) {
+if (season == 0) {
     tiles.setCurrentTilemap(tilemap`level2`)
 }
 if (season == 2) {
     tiles.setCurrentTilemap(tilemap`level7`)
+}
+if (season == 3) {
+    tiles.setCurrentTilemap(tilemap`level6`)
+}
+if (season == 1) {
+    tiles.setCurrentTilemap(tilemap`level16`)
+}
+if (season == 4) {
+    tiles.setCurrentTilemap(tilemap`level17`)
 }
 tiles.placeOnRandomTile(mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)), sprites.castle.rock2)
 let map = sprites.create(img`
@@ -2341,9 +2357,6 @@ forever(function () {
                 `, SpriteKind.Food)
             foodies = 0
             tiles.placeOnRandomTile(halloween_powerup, sprites.dungeon.chestOpen)
-            effects.clouds.startScreenEffect(1000)
-            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).sayText("trick or treat candy is tasty...", 500, false)
-            info.changeLifeBy(3)
         }
     }
     if (season == 2) {
@@ -2369,9 +2382,6 @@ forever(function () {
                 `, SpriteKind.Food)
             foodies = 0
             tiles.placeOnRandomTile(summer_powerup, sprites.dungeon.chestOpen)
-            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).sayText("SLURP...", 500, false)
-            effects.bubbles.startScreenEffect(1000)
-            info.changeLifeBy(3)
         }
     }
     if (season == 1) {
@@ -2400,32 +2410,7 @@ forever(function () {
         }
     }
     if (season == 4) {
-        if (foodies == 6) {
-            sprites.destroy(christmas_powerup, effects.fire, 1000)
-            christmas_powerup = sprites.create(img`
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . 9 1 . . . . . . 
-                . . . . . . 9 9 6 6 1 1 . . . . 
-                . . . . . 9 1 6 6 6 6 6 1 . . . 
-                . . . . 9 6 6 6 1 6 6 6 6 1 . . 
-                . . . . 9 6 1 6 6 6 1 6 6 1 . . 
-                . . . . 9 6 6 1 b b 6 6 6 1 . . 
-                . . . . 9 6 6 b e e b 6 6 9 . . 
-                . . . . 9 1 1 6 e e 6 1 6 9 . . 
-                . . . . 9 1 1 1 1 1 1 1 1 9 . . 
-                . . . . . 9 9 9 9 9 9 9 9 . . . 
-                . . . . . b b b b b b b b . . . 
-                . . . . c c c c c c c c c c . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                `, SpriteKind.Food)
-            foodies = 0
-            tiles.placeOnRandomTile(christmas_powerup, sprites.dungeon.chestOpen)
-            mp.getPlayerSprite(mp.playerSelector(mp.PlayerNumber.One)).sayText("HOHOHO MERRY XMAS!!!", 500, false)
-            effects.blizzard.startScreenEffect(1000)
-            info.changeLifeBy(3)
-        }
+    	
     }
 })
 forever(function () {
@@ -2480,6 +2465,68 @@ forever(function () {
             music.play(music.createSoundEffect(WaveShape.Noise, 2349, 2438, 255, 255, 10, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.UntilDone)
             AMMO_BRRRRRRRR = 16
         }
+    }
+})
+forever(function () {
+    if (info.life() >= 5) {
+        spriteutils.setLifeImage(img`
+            6 . 6 . 6 6 6 
+            6 . 6 . 6 . 6 
+            6 6 6 . 6 6 6 
+            6 . 6 . 6 . . 
+            6 . 6 . 6 . . 
+            . . . 7 . . . 
+            . . 7 7 7 . . 
+            . . . 7 . . . 
+            `)
+    }
+    if (info.life() == 4) {
+        spriteutils.setLifeImage(img`
+            7 . . . 7 . . 
+            . 7 . 7 . . . 
+            . . 7 . . . . 
+            . 7 . 7 . . . 
+            7 . . . 7 . . 
+            . . . . . . . 
+            . . . . . . . 
+            . . . . . . . 
+            `)
+    }
+    if (info.life() == 3) {
+        spriteutils.setLifeImage(img`
+            5 . . . 5 . . 
+            . 5 . 5 . . . 
+            . . 5 . . . . 
+            . 5 . 5 . . . 
+            5 . . . 5 . . 
+            . . . . . . . 
+            . . . . . . . 
+            . . . . . . . 
+            `)
+    }
+    if (info.life() == 2) {
+        spriteutils.setLifeImage(img`
+            4 . . . 4 . . 
+            . 4 . 4 . . . 
+            . . 4 . . . . 
+            . 4 . 4 . . . 
+            4 . . . 4 . . 
+            . . . . . . . 
+            . . . . . . . 
+            . . . . . . . 
+            `)
+    }
+    if (info.life() == 1) {
+        spriteutils.setLifeImage(img`
+            2 . . . 2 . . 
+            . 2 . 2 . . . 
+            . . 2 . . . . 
+            . 2 . 2 . . . 
+            2 . . . 2 . . 
+            . . . . . . . 
+            . . . . . . . 
+            . . . . . . . 
+            `)
     }
 })
 forever(function () {
